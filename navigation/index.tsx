@@ -8,12 +8,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { ColorSchemeName, Pressable } from 'react-native';
+import { ColorSchemeName, Platform, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
+import SipCalculator from '../screens/SipCalculator';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
@@ -36,12 +37,24 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+  const colorScheme = useColorScheme();
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
+    <Stack.Navigator
+    screenOptions={{
+      headerTintColor: 'white',
+      headerStyle: {backgroundColor: Colors[colorScheme].background,
+      },
+    }} >
+      <Stack.Screen name="Root" component={BottomTabNavigator}  options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+      <Stack.Screen name="sip" component={SipCalculator} options={{ 
+        title: 'SIP calculator', 
+      
+        
+        }} />
+
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Contact" component={ModalScreen} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -60,24 +73,43 @@ function BottomTabNavigator() {
     <BottomTab.Navigator
       initialRouteName="TabOne"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarActiveTintColor: Colors[colorScheme].secondary,
+        tabBarStyle: {
+          backgroundColor: '#fff', 
+          paddingVertical: Platform.OS === 'ios' ? 10 : 0,
+          borderRadius: 40, 
+          paddingBottom:10,
+          borderTopWidth: 0, 
+          position: 'absolute',
+          left: 40,
+          right: 40,
+          bottom: 15,
+          height:60
+        }
       }}>
       <BottomTab.Screen
         name="TabOne"
         component={TabOneScreen}
         options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerShown: true,
+          title:'Calculators',
+          tabBarShowLabel:false,
+          headerStyle: {
+            backgroundColor: Colors[colorScheme].background,
+            shadowColor: 'transparent' 
+          },
+          headerTintColor: Colors[colorScheme].text,
+          tabBarIcon: ({ color }) => <TabBarIcon name="calculator" color={color} />,
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate('Modal')}
+              onPress={() => navigation.navigate('Contact')}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
               <FontAwesome
-                name="info-circle"
+                name="envelope"
                 size={25}
-                color={Colors[colorScheme].text}
+                color={Colors[colorScheme].secondary}
                 style={{ marginRight: 15 }}
               />
             </Pressable>
@@ -88,8 +120,30 @@ function BottomTabNavigator() {
         name="TabTwo"
         component={TabTwoScreen}
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerShown: true,
+          tabBarShowLabel:false,
+          title:'Notifications',
+          headerTintColor: Colors[colorScheme].text,
+          headerStyle: {
+            backgroundColor: Colors[colorScheme].background,
+            shadowColor: 'transparent',
+          },
+          tabBarIcon: ({ color }) => <TabBarIcon name="bell" color={color} />,
+        }}
+      />
+       <BottomTab.Screen
+        name="News"
+        component={TabTwoScreen}
+        options={{
+          headerShown: true,
+          tabBarShowLabel:false,
+          title:'News',
+          headerTintColor: Colors[colorScheme].text,
+          headerStyle: {
+            backgroundColor: Colors[colorScheme].background,
+            shadowColor: 'transparent',
+          },
+          tabBarIcon: ({ color }) => <TabBarIcon name="newspaper-o" color={color} />,
         }}
       />
     </BottomTab.Navigator>
@@ -103,5 +157,6 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome  size={30}     style={{ padding: 0 }}
+  {...props} />;
 }
