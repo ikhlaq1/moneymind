@@ -18,7 +18,11 @@ export type RootStackParamList = {
   Modal: undefined;
   Contact: undefined;
   NotFound: undefined;
-  sip:undefined
+  sip:undefined;
+  lumpsum:undefined;
+  stock:undefined;
+
+
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
